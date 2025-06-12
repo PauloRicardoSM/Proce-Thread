@@ -36,7 +36,7 @@ void print_map() {
     for (int i = 0; i < 10; i++) {  
         printf("%s\n", battlefield_map[i]);  
     }  
-    printf("================================\n");  
+    printf("=================================================\n");  
 }  
 
 // Atualiza o mapa com ameaças  
