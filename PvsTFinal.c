@@ -18,6 +18,7 @@ typedef struct {
     int sector_id;  
     int sensor_id;  
     int threat_level;  
+    int row; // nova linha aleatória
 } SensorData;  
 
 pthread_mutex_t lock;  
@@ -40,11 +41,17 @@ void print_map() {
 }  
 
 // Atualiza o mapa com ameaças  
-void update_map(int sector, int sensor, int threat) {
-    int base = (sector == 1) ? 0 : 25; // Esquerda ou direita
-    int pos = base + sensor * 5;
+void update_map(int sector, int sensor, int threat, int row) {
+    int pos;
+    if (sector == 1) {
+        // Setor esquerdo: posições 1, 9, 17 (por exemplo)
+        pos = 1 + sensor * 8; // 1, 9, 17
+    } else {
+        // Setor direito: posições 26, 34, 42
+        pos = 30 + sensor * 8; // 26, 34, 42
+    }
     char marker = (threat > 70) ? 'X' : 'o';
-    battlefield_map[5][pos] = marker;
+    battlefield_map[row][pos] = marker;
 }  
 
 // Função da thread (análise de sensor)  
@@ -52,9 +59,7 @@ void* analyze_sensor(void* arg) {
     SensorData* data = (SensorData*)arg;  
     pthread_mutex_lock(&lock);  
 
-    update_map(data->sector_id, data->sensor_id, data->threat_level);  
-
-    // Toda a impressão protegida pelo mutex
+    update_map(data->sector_id, data->sensor_id, data->threat_level, data->row);
     printf("[SENSOR %d-%d] Nível de ameaça: ", data->sector_id, data->sensor_id);  
     if (data->threat_level > 70) {
         printf(RED "%d%% (ALERTA CRÍTICO!\a)" RESET, data->threat_level);  
@@ -80,6 +85,7 @@ void analyze_sector(int sector_id) {
         sensors[i].sector_id = sector_id;
         sensors[i].sensor_id = i;
         sensors[i].threat_level = rand() % 100;
+        sensors[i].row = 1 + rand() % 8; // linhas de 1 a 8 (ajuste conforme seu mapa)
         pthread_create(&threads[i], NULL, analyze_sensor, &sensors[i]);
     }  
 
