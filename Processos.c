@@ -1,11 +1,10 @@
-#include <stdio.h>
-#include <unistd.h>
-int main() {
-    pid_t pid = fork();
-    if (pid == 0) {
-        printf("Processo filho\n");
-    } else {
-        printf("Processo pai\n");
-    }
-    return 0;
-}
+#include <unistd.h>  
+#include <stdio.h>  
+
+int main() {  
+    printf("Processo PAI (PID: %d)\n", getpid());  
+    fork();  // Cria um filho  
+    printf("Quem sou eu? PID: %d\n", getpid());  
+    sleep(1);  // Pausa para ver a saída  
+    return 0;  
+}  
