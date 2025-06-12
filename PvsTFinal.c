@@ -53,6 +53,7 @@ void* analyze_sensor(void* arg) {
 
     update_map(data->sector_id, data->sensor_id, data->threat_level);  
 
+    // Toda a impressão protegida pelo mutex
     printf("[SENSOR %d-%d] Nível de ameaça: ", data->sector_id, data->sensor_id);  
     if (data->threat_level > 70) {  
         printf(RED "%d%% (ALERTA CRÍTICO!)" RESET, data->threat_level);  
@@ -62,6 +63,7 @@ void* analyze_sensor(void* arg) {
         printf(GREEN "%d%% (SEGURO)" RESET, data->threat_level);  
     }  
     printf("\n");  
+    fflush(stdout); // Garante que a saída seja exibida imediatamente
 
     pthread_mutex_unlock(&lock);  
     return NULL;  
@@ -93,17 +95,20 @@ int main() {
     init_map();  
 
     printf(GREEN "=== BATTLEFIELD ANALYZER (C - Processos/Threads) ===" RESET "\n");  
-    print_map();  
+    print_map();  // Mapa vazio
 
     pid_t pid = fork();  
 
     if (pid == 0) {  
-        analyze_sector(1);  // Setor 1 (processo filho)  
+        printf(BLUE "\n--- Análise do Setor 1 (Processo Filho) ---\n" RESET);
+        analyze_sector(1);  
+        exit(0);  
     } else {  
-        analyze_sector(2);  // Setor 2 (processo pai)  
-        waitpid(pid, NULL, 0);  // Substitua wait(NULL) por isso  
+        waitpid(pid, NULL, 0);  
+        printf(BLUE "\n--- Análise do Setor 2 (Processo Pai) ---\n" RESET);
+        analyze_sector(2);  
     }  
 
     pthread_mutex_destroy(&lock);  
     return 0;  
-}  
+}
