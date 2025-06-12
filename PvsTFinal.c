@@ -40,10 +40,11 @@ void print_map() {
 }  
 
 // Atualiza o mapa com ameaças  
-void update_map(int sector, int sensor, int threat) {  
-    int pos = (sector - 1) * 25 + sensor * 5;  
-    char marker = (threat > 70) ? 'X' : 'o';  
-    battlefield_map[5][pos] = marker;  // Linha central do setor  
+void update_map(int sector, int sensor, int threat) {
+    int base = (sector == 1) ? 0 : 25; // Esquerda ou direita
+    int pos = base + sensor * 5;
+    char marker = (threat > 70) ? 'X' : 'o';
+    battlefield_map[5][pos] = marker;
 }  
 
 // Função da thread (análise de sensor)  
@@ -99,16 +100,16 @@ int main() {
 
     pid_t pid = fork();  
 
-    if (pid == 0) {  
-        srand(time(NULL) + getpid()); // Semente única para o filho
+    if (pid == 0) {
+        srand(time(NULL) + getpid());
         printf(BLUE "\n--- Análise do Setor 1 (Processo Filho) ---\n" RESET);
-        analyze_sector(1);  
-        exit(0);  
-    } else {  
-        srand(time(NULL) + getpid()); // Semente única para o pai
-        waitpid(pid, NULL, 0);  
+        analyze_sector(1); // Esquerda
+        exit(0);
+    } else {
+        srand(time(NULL) + getpid());
+        waitpid(pid, NULL, 0);
         printf(BLUE "\n--- Análise do Setor 2 (Processo Pai) ---\n" RESET);
-        analyze_sector(2);  
+        analyze_sector(2); // Direita
     }  
 
     pthread_mutex_destroy(&lock);  
