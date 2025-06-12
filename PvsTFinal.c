@@ -56,7 +56,7 @@ void* analyze_sensor(void* arg) {
 
     // Toda a impressão protegida pelo mutex
     printf("[SENSOR %d-%d] Nível de ameaça: ", data->sector_id, data->sensor_id);  
-    if (data->threat_level > 70) {  
+    if (data->threat_level > 70) {
         printf(RED "%d%% (ALERTA CRÍTICO!\a)" RESET, data->threat_level);  
     } else if (data->threat_level > 40) {  
         printf(YELLOW "%d%% (ATENÇÃO)" RESET, data->threat_level);  
