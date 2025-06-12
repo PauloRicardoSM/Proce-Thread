@@ -76,11 +76,11 @@ void analyze_sector(int sector_id) {
     pthread_t threads[3];  
     SensorData sensors[3];  
 
-    for (int i = 0; i < 3; i++) {  
-        sensors[i].sector_id = sector_id;  
-        sensors[i].sensor_id = i;  
-        sensors[i].threat_level = rand() % 100;  
-        pthread_create(&threads[i], NULL, analyze_sensor, &sensors[i]);  
+    for (int i = 0; i < 3; i++) {
+        sensors[i].sector_id = sector_id;
+        sensors[i].sensor_id = i;
+        sensors[i].threat_level = rand() % 100;
+        pthread_create(&threads[i], NULL, analyze_sensor, &sensors[i]);
     }  
 
     for (int i = 0; i < 3; i++) {  
