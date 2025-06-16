@@ -5,36 +5,38 @@
 #include <sys/wait.h>
 #include <time.h>
 
-#define ROWS 5
-#define COLS 5
-#define MINES 5
+#define LINHAS 5
+#define COLUNAS 5
+#define MINAS 5
 
-int field[ROWS][COLS];
+int campo[LINHAS][COLUNAS];
 pthread_mutex_t lock;
 
-void* sweep_row(void* arg) {
-    int row = *(int*)arg;
-    for (int col = 0; col < COLS; col++) {
+// Função executada por cada thread para varrer uma linha
+void* varrer_linha(void* arg) {
+    int linha = *(int*)arg;
+    for (int coluna = 0; coluna < COLUNAS; coluna++) {
         pthread_mutex_lock(&lock);
-        if (field[row][col] == 1) {
-            printf("Process %d, Thread sweeping row %d: Mine found at (%d,%d)!\n", getpid(), row, row, col);
+        if (campo[linha][coluna] == 1) {
+            printf("Processo %d, Thread varrendo linha %d: Mina encontrada em (%d,%d)!\n", getpid(), linha, linha, coluna);
         } else {
-            printf("Process %d, Thread sweeping row %d: Safe at (%d,%d)\n", getpid(), row, row, col);
+            printf("Processo %d, Thread varrendo linha %d: Seguro em (%d,%d)\n", getpid(), linha, linha, coluna);
         }
         pthread_mutex_unlock(&lock);
-        usleep(100000);
+        usleep(100000); // Espera 0,1 segundo para simular trabalho
     }
     return NULL;
 }
 
-void place_mines() {
-    int placed = 0;
-    while (placed < MINES) {
-        int r = rand() % ROWS;
-        int c = rand() % COLS;
-        if (field[r][c] == 0) {
-            field[r][c] = 1;
-            placed++;
+// Função para posicionar as minas aleatoriamente no campo
+void posicionar_minas() {
+    int colocadas = 0;
+    while (colocadas < MINAS) {
+        int l = rand() % LINHAS;
+        int c = rand() % COLUNAS;
+        if (campo[l][c] == 0) {
+            campo[l][c] = 1;
+            colocadas++;
         }
     }
 }
@@ -43,36 +45,36 @@ int main() {
     srand(time(NULL));
     pthread_mutex_init(&lock, NULL);
 
-    // Place mines only in parent process
-    place_mines();
+    // Posiciona as minas apenas no processo pai
+    posicionar_minas();
 
     pid_t pid = fork();
 
     if (pid < 0) {
-        perror("fork");
+        perror("Erro ao criar processo");
         exit(1);
     }
 
-    if (pid == 0) { // Child process
-        printf("Child process (pid=%d) sweeping field...\n", getpid());
-    } else { // Parent process
-        printf("Parent process (pid=%d) sweeping field...\n", getpid());
+    if (pid == 0) { // Processo filho
+        printf("Processo filho (pid=%d) iniciando varredura do campo...\n", getpid());
+    } else { // Processo pai
+        printf("Processo pai (pid=%d) iniciando varredura do campo...\n", getpid());
     }
 
-    pthread_t threads[ROWS];
-    int rows[ROWS];
-    for (int i = 0; i < ROWS; i++) {
-        rows[i] = i;
-        pthread_create(&threads[i], NULL, sweep_row, &rows[i]);
+    pthread_t threads[LINHAS];
+    int linhas[LINHAS];
+    for (int i = 0; i < LINHAS; i++) {
+        linhas[i] = i;
+        pthread_create(&threads[i], NULL, varrer_linha, &linhas[i]);
     }
 
-    for (int i = 0; i < ROWS; i++) {
+    for (int i = 0; i < LINHAS; i++) {
         pthread_join(threads[i], NULL);
     }
 
     if (pid > 0) {
         wait(NULL);
-        printf("Simulation finished.\n");
+        printf("Simulação finalizada.\n");
     }
 
     pthread_mutex_destroy(&lock);
