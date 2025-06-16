@@ -18,26 +18,22 @@ int main() {
     int id2 = 2;
 
     printf("Processo principal: Criando thread 1.\n");
-    if (pthread_create(&thread1, NULL, minhaThread, 
-                       (void *)&id1) != 0) {
-        fprintf(stderr, "Erro ao criar thread 1.\n");
+    if (pthread_create(&thread1, NULL, minhaThread, (void *)&id1) != 0) {
+            fprintf(stderr, "Erro ao criar thread 1.\n");
         return 1;
     }
 
     printf("Processo principal: Criando thread 2.\n");
-    if (pthread_create(&thread2, NULL, minhaThread, 
-                       (void *)&id2) != 0) {
-        fprintf(stderr, "Erro ao criar thread 2.\n");
+    if (pthread_create(&thread2, NULL, minhaThread, (void *)&id2) != 0) {
+            fprintf(stderr, "Erro ao criar thread 2.\n");
         return 1;
     }
 
-    printf("Processo principal: Esperando as threads "
-           "terminarem.\n");
+    printf("Processo principal: Esperando as threads terminarem.\n");
     pthread_join(thread1, NULL);
     pthread_join(thread2, NULL);
 
-    printf("Processo principal: Todas as threads "
-           "terminaram. Encerrando.\n");
+    printf("Processo principal: Todas as threads terminaram. Encerrando.\n");
 
     return 0;
 }
